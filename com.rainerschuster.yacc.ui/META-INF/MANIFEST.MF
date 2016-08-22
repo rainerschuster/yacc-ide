@@ -1,0 +1,25 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: com.rainerschuster.yacc.ui
+Bundle-Vendor: My Company
+Bundle-Version: 1.0.0.qualifier
+Bundle-SymbolicName: com.rainerschuster.yacc.ui; singleton:=true
+Bundle-ActivationPolicy: lazy
+Require-Bundle: com.rainerschuster.yacc,
+ com.rainerschuster.yacc.ide,
+ org.eclipse.xtext.ui,
+ org.eclipse.xtext.ui.shared,
+ org.eclipse.xtext.ui.codetemplates.ui,
+ org.eclipse.ui.editors;bundle-version="3.5.0",
+ org.eclipse.ui.ide;bundle-version="3.5.0",
+ org.eclipse.ui,
+ org.eclipse.compare,
+ org.eclipse.xtext.builder,
+ org.eclipse.xtend.lib;resolution:=optional,
+ org.eclipse.xtext.xbase.lib
+Import-Package: org.apache.log4j
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Export-Package: com.rainerschuster.yacc.ui.quickfix,
+ com.rainerschuster.yacc.ui.contentassist,
+ com.rainerschuster.yacc.ui.internal
+Bundle-Activator: com.rainerschuster.yacc.ui.internal.YaccActivator

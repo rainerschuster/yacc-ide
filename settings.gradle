@@ -1,0 +1,3 @@
+include 'com.rainerschuster.yacc'
+include 'com.rainerschuster.yacc.ide'
+include 'com.rainerschuster.yacc.tests'
