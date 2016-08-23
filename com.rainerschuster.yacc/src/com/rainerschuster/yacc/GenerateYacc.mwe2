@@ -30,7 +30,7 @@ Workflow {
 		}
 		language = StandardLanguage {
 			name = "com.rainerschuster.yacc.Yacc"
-			fileExtensions = "yy"
+			fileExtensions = "y"
 
 			serializer = {
 				generateStub = false

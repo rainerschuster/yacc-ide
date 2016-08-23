@@ -4,6 +4,7 @@
 package com.rainerschuster.yacc.ui.outline
 
 import org.eclipse.xtext.ui.editor.outline.impl.DefaultOutlineTreeProvider
+import com.rainerschuster.yacc.yacc.Rule
 
 /**
  * Customization of the default outline structure.
@@ -12,4 +13,7 @@ import org.eclipse.xtext.ui.editor.outline.impl.DefaultOutlineTreeProvider
  */
 class YaccOutlineTreeProvider extends DefaultOutlineTreeProvider {
 
+	def _isLeaf(Rule ele) {
+		true
+	}
 }

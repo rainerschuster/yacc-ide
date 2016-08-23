@@ -4,7 +4,7 @@
 package com.rainerschuster.yacc.tests
 
 import com.google.inject.Inject
-import com.rainerschuster.yacc.yacc.Pec
+import com.rainerschuster.yacc.yacc.Specification
 import org.eclipse.xtext.junit4.InjectWith
 import org.eclipse.xtext.junit4.XtextRunner
 import org.eclipse.xtext.junit4.util.ParseHelper
@@ -17,7 +17,7 @@ import org.junit.runner.RunWith
 class YaccParsingTest{
 
 	@Inject
-	ParseHelper<Pec> parseHelper
+	ParseHelper<Specification> parseHelper
 
 	@Test 
 	def void loadModel() {

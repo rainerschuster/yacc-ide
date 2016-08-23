@@ -7,7 +7,7 @@
 			class="com.rainerschuster.yacc.ui.YaccExecutableExtensionFactory:org.eclipse.xtext.ui.editor.XtextEditor"
 			contributorClass="org.eclipse.ui.editors.text.TextEditorActionContributor"
 			default="true"
-			extensions="yy"
+			extensions="y"
 			id="com.rainerschuster.yacc.Yacc"
 			name="Yacc Editor">
 		</editor>
@@ -209,13 +209,13 @@
 		point="org.eclipse.emf.ecore.extension_parser">
 		<parser
 			class="com.rainerschuster.yacc.ui.YaccExecutableExtensionFactory:org.eclipse.xtext.resource.IResourceFactory"
-			type="yy">
+			type="y">
 		</parser>
 	</extension>
 	<extension point="org.eclipse.xtext.extension_resourceServiceProvider">
 		<resourceServiceProvider
 			class="com.rainerschuster.yacc.ui.YaccExecutableExtensionFactory:org.eclipse.xtext.ui.resource.IResourceUIServiceProvider"
-			uriExtension="yy">
+			uriExtension="y">
 		</resourceServiceProvider>
 	</extension>
 	<!-- marker definitions for com.rainerschuster.yacc.Yacc -->
@@ -243,7 +243,7 @@
 	<extension point="org.eclipse.xtext.builder.participant">
 		<participant
 			class="com.rainerschuster.yacc.ui.YaccExecutableExtensionFactory:org.eclipse.xtext.builder.IXtextBuilderParticipant"
-			fileExtensions="yy"/>
+			fileExtensions="y"/>
 	</extension>
 	<extension point="org.eclipse.ui.preferencePages">
 		<page
@@ -386,24 +386,24 @@
 	<extension point="org.eclipse.compare.contentViewers">
 		<viewer id="com.rainerschuster.yacc.Yacc.compare.contentViewers"
 			class="com.rainerschuster.yacc.ui.YaccExecutableExtensionFactory:org.eclipse.xtext.ui.compare.InjectableViewerCreator"
-			extensions="yy">
+			extensions="y">
 		</viewer>
 	</extension>
 	<extension point="org.eclipse.compare.contentMergeViewers">
 		<viewer id="com.rainerschuster.yacc.Yacc.compare.contentMergeViewers"
 			class="com.rainerschuster.yacc.ui.YaccExecutableExtensionFactory:org.eclipse.xtext.ui.compare.InjectableViewerCreator"
-			extensions="yy" label="Yacc Compare">
+			extensions="y" label="Yacc Compare">
 		</viewer>
 	</extension>
 	<extension point="org.eclipse.ui.editors.documentProviders">
 		<provider id="com.rainerschuster.yacc.Yacc.editors.documentProviders"
 			class="com.rainerschuster.yacc.ui.YaccExecutableExtensionFactory:org.eclipse.xtext.ui.editor.model.XtextDocumentProvider"
-			extensions="yy">
+			extensions="y">
 		</provider>
 	</extension>
 	<extension point="org.eclipse.team.core.fileTypes">
 		<fileTypes
-			extension="yy"
+			extension="y"
 			type="text">
 		</fileTypes>
 	</extension>
