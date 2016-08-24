@@ -11,6 +11,7 @@ import com.rainerschuster.yacc.yacc.RWordDefinition
 import com.rainerschuster.yacc.yacc.StartDefinition
 import com.rainerschuster.yacc.yacc.UnionDefinition
 import com.rainerschuster.yacc.yacc.Rule
+import com.rainerschuster.yacc.yacc.CodeDefinition
 
 /**
  * Provides labels for EObjects.
@@ -24,9 +25,17 @@ class YaccLabelProvider extends DefaultEObjectLabelProvider {
 		super(delegate);
 	}
 
+	def text(CodeDefinition ele) {
+		'<CODE>'
+	}
+
 	// Labels and icons can be computed like this:
 	def image(StartDefinition ele) {
 		'start.png'
+	}
+
+	def text(UnionDefinition ele) {
+		'<UNION>'
 	}
 
 	def image(UnionDefinition ele) {
