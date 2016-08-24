@@ -1,2 +1,2 @@
 # YACC-IDE
-[Xtext](http://eclipse.org/Xtext/) based IDE for YACC
+[Xtext](http://eclipse.org/Xtext/) based IDE for YACC.
