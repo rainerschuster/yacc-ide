@@ -56,7 +56,7 @@ class YaccLabelProvider extends DefaultEObjectLabelProvider {
 			case LEFT: 'left.png'
 			case RIGHT: 'right.png'
 			case NONASSOC: 'nonassoc.png'
-			case TYPE: 'type.png'
+//			case TYPE: 'type.png'
 		}
 	}
 	def image(Nmno ele) {

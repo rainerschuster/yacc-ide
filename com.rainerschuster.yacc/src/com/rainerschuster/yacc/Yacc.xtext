@@ -6,20 +6,28 @@ import "http://www.eclipse.org/emf/2002/Ecore" as ecore
 generate yacc "http://www.rainerschuster.com/yacc/Yacc"
 
 Specification:
-	{Specification} definitions+=Definition* ('%%'|'\\\\') rules+=Rule* tail=Tail?
+	{Specification} definitions+=Definition* ('%%'|'\\\\') body+=RuleOrDefinition* tail=Tail?
 ;
 
 Tail:
 	// After the delimiter any token should be matched until the end of file
-	('%%'|'\\\\') (LITERAL|BLOCK|CODE|ID|INT|STRING|ML_COMMENT|SL_COMMENT|WS|ANY_OTHER|','|'%%'|'\\\\'|'<'|'>'|':'|'|'|';'|'=')*
+	('%%'|'\\\\') (LITERAL|BLOCK|CODE|ID|INT|STRING|ML_COMMENT|SL_COMMENT|WS|ANY_OTHER|','|'%%'|'\\\\'|'<'|'>'|':'|'|'|';'|'='|'*')*
 ;
 
 Definition:
-	StartDefinition
+	(StartDefinition
 	| UnionDefinition
 	| CodeDefinition
 	| RWordDefinition
+	| TypeDefinition
 
+	| BisonCodeDefinition
+	| BisonDefineDefinition
+	| BisonDefinesDefinition
+	| BisonInitialActionDefinition
+	| BisonPrinterDefinition
+	| BisonVerboseDefinition
+	| BisonYaccDefinition
 	| DestructorDefinition
 	| ExpectDefinition
 	| ExpectRrDefinition
@@ -29,7 +37,7 @@ Definition:
 	| ParseParamDefinition
 //	| PrecedenceDefinition
 	| PureParserDefinition
-	| TokenTableDefinition
+	| TokenTableDefinition)';'?
 ;
 
 StartDefinition:
@@ -37,15 +45,88 @@ StartDefinition:
 ;
 
 UnionDefinition:
-	'%union' assignment?='='? union=BLOCK semi?=';'?
+	'%union' assignment?='='? union=BLOCK
 ;
 
 RWordDefinition:
 	/*definitions+=Def**/ rword=RWord tag=Tag? nlist+=Nmno (','? nlist+=Nmno)*
 ;
 
+TypeDefinition:
+	'%type' tag=Tag? symbols+=Symbol+
+;
+
+enum BisonCodeTop:
+	TOP='top'
+	| REQUIRES='requires'
+	| PROVIDES='provides'
+;
+
+BisonCodeDefinition:
+	'%code' x=BisonCodeTop? code=BLOCK
+;
+
+BisonDefineDefinition:
+	'%define' variable=Variable value=Value?
+;
+
+// TODO Bison helper
+Symbol:
+	id=ID
+//	| literal=LITERAL
+	| string=STRING
+;
+
+// TODO Bison helper
+SymbolWithPrecedence:
+	symbol=Symbol precedence=INT?
+;
+
+// TODO Bison helper
+// TODO this should be a reference
+GenericSymbol:
+	Symbol
+	| {TagSymbol} tag=Tag
+;
+
+// TODO Bison helper
+Variable:
+	id=ID
+	| literal=LITERAL
+	| string=STRING
+;
+
+// TODO Bison helper
+Value:
+	id=ID
+	| literal=LITERAL
+	| string=STRING
+//	| ReferenceOrLiteral
+	| code=BLOCK
+;
+
+BisonDefinesDefinition:
+	{BisonDefinesDefinition}'%defines' x=STRING?
+;
+
+BisonInitialActionDefinition:
+	'%initial-action' action=BLOCK
+;
+
+BisonPrinterDefinition:
+	'%printer' code=BLOCK symbols+=GenericSymbol+
+;
+
+BisonVerboseDefinition:
+	{BisonVerboseDefinition}'%verbose'
+;
+
+BisonYaccDefinition:
+	{BisonYaccDefinition}'%yacc'
+;
+
 DestructorDefinition:
-	'%destructor' code=BLOCK references+=ReferenceOrLiteral+
+	'%destructor' code=BLOCK symbols+=GenericSymbol+
 ;
 
 ExpectDefinition:
@@ -72,14 +153,14 @@ LexParamDefinition:
 	('%lex-param'
 	| '%lex_param' // TODO is this valid?
 	| '%LEX_PARAM') // TODO is this valid?
-		argumentDeclarations=BLOCK
+		argumentDeclarations+=BLOCK+
 ;
 
 ParseParamDefinition:
 	('%parse-param'
 	| '%parse_param' // TODO is this valid?
 	| '%PARSE_PARAM') // TODO is this valid?
-		argumentDeclarations=BLOCK
+		argumentDeclarations+=BLOCK+
 ;
 
 PureParserDefinition:
@@ -104,15 +185,23 @@ enum RWord:
 	| LEFT='%left' | LEFT='%<'
 	| RIGHT='%right' | RIGHT='%>'
 	| NONASSOC='%nonassoc'
-	| TYPE='%type'
+//	| TYPE='%type'
 ;
 
 Tag:
 	'<' Identifier '>'
+	| '<' '*' '>' // default tagged
+	| '<' '>' // default tagless
 ;
 
 Nmno:
 	name=Identifier number=INT? string=STRING?
+//	| name=Tag
+;
+
+RuleOrDefinition:
+	Rule
+	| Definition
 ;
 
 Rule:
@@ -125,6 +214,7 @@ RuleBody:
 
 RuleBodyElement:
 	{RuleError}'error'
+	| {RuleEmpty}'%empty'
 	| {RuleReference}ref=ReferenceOrLiteral
 	| Action
 ;
