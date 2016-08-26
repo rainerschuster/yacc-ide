@@ -14,34 +14,54 @@ Tail:
 	('%%'|'\\\\') (LITERAL|BLOCK|CODE|ID|INT|STRING|ML_COMMENT|SL_COMMENT|WS|ANY_OTHER|','|'%%'|'\\\\'|'<'|'>'|':'|'|'|';'|'='|'*')*
 ;
 
+
 Definition:
-	(StartDefinition
+	(
+// grammar declarations:
+	StartDefinition
 	| UnionDefinition
 	| CodeDefinition
 	| RWordDefinition
 	| TypeDefinition
 
 	| BisonCodeDefinition
+	| BisonDefaultPrecDefinition
+	| BisonNoDefaultPrecDefinition
+
+// prologue declarations:
+//	| CodeDefinition
+// TODO %<flag>
 	| BisonDefineDefinition
 	| BisonDefinesDefinition
+	| BisonErrorVerboseDefinition
+	| ExpectDefinition
+	| ExpectRrDefinition
+	| BisonFilePrefixDefinition
+	| BisonGlrParserDefinition
 	| BisonInitialActionDefinition
+	| BisonLanguageDefinition
+	| BisonNamePrefixDefinition
+	| BisonNoLinesDefinition
+	| BisonNondeterministicParserDefinition
+	| BisonOutputDefinition
+	| BisonParamDefinition
 	| BisonPrinterDefinition
+	| BisonRequireDefinition
+	| BisonSkeletonDefinition
+	| TokenTableDefinition
 	| BisonVerboseDefinition
 	| BisonYaccDefinition
 	| DestructorDefinition
-	| ExpectDefinition
-	| ExpectRrDefinition
 	| IdentDefinition
 	| LocationsDefinition
 	| LexParamDefinition
 	| ParseParamDefinition
 //	| PrecedenceDefinition
-	| PureParserDefinition
-	| TokenTableDefinition)';'?
+	| PureParserDefinition)';'?
 ;
 
 StartDefinition:
-	'%start' start=[Rule|ID]
+	'%start' start=[Rule|ID] // TODO Symbol instead of ID
 ;
 
 UnionDefinition:
@@ -64,6 +84,10 @@ enum BisonCodeTop:
 
 BisonCodeDefinition:
 	'%code' x=BisonCodeTop? code=BLOCK
+;
+
+BisonDefaultPrecDefinition:
+	{BisonDefaultPrecDefinition} '%default-prec'
 ;
 
 BisonDefineDefinition:
@@ -106,15 +130,75 @@ Value:
 ;
 
 BisonDefinesDefinition:
-	{BisonDefinesDefinition}'%defines' x=STRING?
+	{BisonDefinesDefinition}'%defines' defines=STRING?
+;
+
+BisonErrorVerboseDefinition:
+	{BisonErrorVerboseDefinition}'%error-verbose'
+;
+
+ExpectDefinition:
+	'%expect' number=INT
+;
+
+ExpectRrDefinition:
+	'%expect-rr' number=INT
+;
+
+BisonFilePrefixDefinition:
+	'%file-prefix' prefix=STRING
+;
+
+BisonGlrParserDefinition:
+	{BisonGlrParserDefinition}'%glr-parser'
 ;
 
 BisonInitialActionDefinition:
 	'%initial-action' action=BLOCK
 ;
 
+BisonLanguageDefinition:
+	'%language' language=STRING
+;
+
+BisonNamePrefixDefinition:
+	'%name-prefix' language=STRING
+;
+
+BisonNoDefaultPrecDefinition:
+	{BisonNoDefaultPrecDefinition} '%no-default-prec'
+;
+
+BisonNoLinesDefinition:
+	{BisonNoLinesDefinition} '%no-lines'
+;
+
+BisonNondeterministicParserDefinition:
+	{BisonNondeterministicParserDefinition} '%nondeterministic-parser'
+;
+
+BisonOutputDefinition:
+	'%output' output=STRING
+;
+
+BisonParamDefinition:
+	'%param' argumentDeclarations+=BLOCK+
+;
+
 BisonPrinterDefinition:
 	'%printer' code=BLOCK symbols+=GenericSymbol+
+;
+
+BisonRequireDefinition:
+	'%require' require=STRING
+;
+
+BisonSkeletonDefinition:
+	'%skeleton' skeleton=STRING
+;
+
+TokenTableDefinition:
+	{TokenTableDefinition} '%token-table'
 ;
 
 BisonVerboseDefinition:
@@ -127,14 +211,6 @@ BisonYaccDefinition:
 
 DestructorDefinition:
 	'%destructor' code=BLOCK symbols+=GenericSymbol+
-;
-
-ExpectDefinition:
-	'%expect' number=INT
-;
-
-ExpectRrDefinition:
-	'%expect-rr' number=INT
 ;
 
 // TODO Where is this defined?
@@ -167,10 +243,6 @@ PureParserDefinition:
 	{PureParserDefinition} ('%pure-parser'
 	| '%pure_parser' // TODO is this valid?
 	| '%PURE_PARSER') // TODO is this valid?
-;
-
-TokenTableDefinition:
-	{TokenTableDefinition} '%token-table'
 ;
 
 CodeDefinition:
