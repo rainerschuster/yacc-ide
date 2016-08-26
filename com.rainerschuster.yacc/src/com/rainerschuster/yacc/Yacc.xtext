@@ -5,6 +5,9 @@ import "http://www.eclipse.org/emf/2002/Ecore" as ecore
 
 generate yacc "http://www.rainerschuster.com/yacc/Yacc"
 
+// TODO page 82: Explicit names are declared as a bracketed name after a symbol appearance in rule definitions.
+// TODO cf. Antlr grammar
+
 Specification:
 	{Specification} definitions+=Definition* ('%%'|'\\\\') body+=RuleOrDefinition* tail=Tail?
 ;
@@ -14,23 +17,28 @@ Tail:
 	('%%'|'\\\\') (LITERAL|BLOCK|CODE|ID|INT|STRING|ML_COMMENT|SL_COMMENT|WS|ANY_OTHER|','|'%%'|'\\\\'|'<'|'>'|':'|'|'|';'|'='|'*')*
 ;
 
-
+// TODO cf. 3.7.12 Bison Declaration Summary
 Definition:
 	(
 // grammar declarations:
 	StartDefinition
 	| UnionDefinition
 	| CodeDefinition
-	| RWordDefinition
+	| PrecedenceDefinition
+	| TokenDefinition
 	| TypeDefinition
 
 	| BisonCodeDefinition
 	| BisonDefaultPrecDefinition
+	| DestructorDefinition
 	| BisonNoDefaultPrecDefinition
+	| BisonNtermDefinition
+	| BisonPrinterDefinition
 
 // prologue declarations:
 //	| CodeDefinition
 // TODO %<flag>
+	| BisonDebugDefinition // TODO Not found in grammar, only in doc
 	| BisonDefineDefinition
 	| BisonDefinesDefinition
 	| BisonErrorVerboseDefinition
@@ -38,52 +46,64 @@ Definition:
 	| ExpectRrDefinition
 	| BisonFilePrefixDefinition
 	| BisonGlrParserDefinition
+	| IdentDefinition
 	| BisonInitialActionDefinition
 	| BisonLanguageDefinition
+	| LexParamDefinition
+	| LocationsDefinition
 	| BisonNamePrefixDefinition
 	| BisonNoLinesDefinition
 	| BisonNondeterministicParserDefinition
 	| BisonOutputDefinition
 	| BisonParamDefinition
-	| BisonPrinterDefinition
+	| ParseParamDefinition
+	| PureParserDefinition
 	| BisonRequireDefinition
 	| BisonSkeletonDefinition
 	| TokenTableDefinition
 	| BisonVerboseDefinition
 	| BisonYaccDefinition
-	| DestructorDefinition
-	| IdentDefinition
-	| LocationsDefinition
-	| LexParamDefinition
-	| ParseParamDefinition
 //	| PrecedenceDefinition
-	| PureParserDefinition)';'?
+	)';'?
 ;
 
 StartDefinition:
-	'%start' start=[Rule|ID] // TODO Symbol instead of ID
+	'%start' start=Symbol
 ;
 
 UnionDefinition:
 	'%union' assignment?='='? union=BLOCK
 ;
 
-RWordDefinition:
-	/*definitions+=Def**/ rword=RWord tag=Tag? nlist+=Nmno (','? nlist+=Nmno)*
+PrecedenceDefinition:
+	/*definitions+=Def**/ rword=RWord tag=Tag? symbols+=SymbolWithPrecedence (','? symbols+=SymbolWithPrecedence)*
+;
+
+BisonNtermDefinition:
+	'%nterm' /*tag=Tag?*/ symbols+=SymbolDefinition+
+;
+
+TokenDefinition:
+	'%token' /*tag=Tag?*/ symbols+=SymbolDefinition+
 ;
 
 TypeDefinition:
 	'%type' tag=Tag? symbols+=Symbol+
 ;
 
-enum BisonCodeTop:
-	TOP='top'
-	| REQUIRES='requires'
+enum BisonCodeQualifier:
+	REQUIRES='requires'
 	| PROVIDES='provides'
+	| TOP='top'
+	| IMPORTS='imports'
 ;
 
 BisonCodeDefinition:
-	'%code' x=BisonCodeTop? code=BLOCK
+	'%code' qualifier=BisonCodeQualifier? code=BLOCK
+;
+
+BisonDebugDefinition:
+	{BisonDebugDefinition} '%debug'
 ;
 
 BisonDefaultPrecDefinition:
@@ -94,16 +114,143 @@ BisonDefineDefinition:
 	'%define' variable=Variable value=Value?
 ;
 
+BisonDefinesDefinition:
+	{BisonDefinesDefinition}'%defines' defines=STRING?
+;
+
+DestructorDefinition:
+	'%destructor' code=BLOCK symbols+=GenericSymbol+
+;
+
+BisonErrorVerboseDefinition:
+	{BisonErrorVerboseDefinition}'%error-verbose'
+;
+
+ExpectDefinition:
+	'%expect' number=INT
+;
+
+ExpectRrDefinition:
+	'%expect-rr' number=INT
+;
+
+BisonFilePrefixDefinition:
+	'%file-prefix' prefix=STRING
+;
+
+BisonGlrParserDefinition:
+	{BisonGlrParserDefinition}'%glr-parser'
+;
+
+// TODO Where is this defined?
+IdentDefinition:
+	('%ident'
+	| '%IDENT')
+		ident=STRING
+;
+
+BisonInitialActionDefinition:
+	'%initial-action' action=BLOCK
+;
+
+BisonLanguageDefinition:
+	'%language' language=STRING
+;
+
+LexParamDefinition:
+	('%lex-param'
+	| '%lex_param' // TODO is this valid?
+	| '%LEX_PARAM') // TODO is this valid?
+		argumentDeclarations+=BLOCK+
+;
+
+LocationsDefinition:
+	{LocationsDefinition} ('%locations'
+	| '%LOCATIONS') // TODO is this valid?
+;
+
+BisonNamePrefixDefinition:
+	'%name-prefix' prefix=STRING
+;
+
+BisonNoDefaultPrecDefinition:
+	{BisonNoDefaultPrecDefinition} '%no-default-prec'
+;
+
+BisonNoLinesDefinition:
+	{BisonNoLinesDefinition} '%no-lines'
+;
+
+BisonNondeterministicParserDefinition:
+	{BisonNondeterministicParserDefinition} '%nondeterministic-parser'
+;
+
+BisonOutputDefinition:
+	'%output' file=STRING
+;
+
+BisonParamDefinition:
+	'%param' argumentDeclarations+=BLOCK+
+;
+
+ParseParamDefinition:
+	('%parse-param'
+	| '%parse_param' // TODO is this valid?
+	| '%PARSE_PARAM') // TODO is this valid?
+		argumentDeclarations+=BLOCK+
+;
+
+BisonPrinterDefinition:
+	'%printer' code=BLOCK symbols+=GenericSymbol+
+;
+
+PureParserDefinition:
+	{PureParserDefinition} ('%pure-parser'
+	| '%pure_parser' // TODO is this valid?
+	| '%PURE_PARSER') // TODO is this valid?
+;
+
+BisonRequireDefinition:
+	'%require' version=STRING
+;
+
+BisonSkeletonDefinition:
+	'%skeleton' file=STRING
+;
+
+TokenTableDefinition:
+	{TokenTableDefinition} '%token-table'
+;
+
+BisonVerboseDefinition:
+	{BisonVerboseDefinition} '%verbose'
+;
+
+BisonYaccDefinition:
+	{BisonYaccDefinition} '%yacc'
+;
+
+
+
 // TODO Bison helper
 Symbol:
-	id=ID
-//	| literal=LITERAL
-	| string=STRING
+	ref=[NamedElement|ID]
+//	| ref=[NamedElement|Tag]
+	| refString=[StringAlias|STRING]
+//	| ref=[NamedElement|STRING]
+	| literal=LITERAL
+//	id=ID
+////	| literal=LITERAL
+//	| string=STRING
 ;
 
 // TODO Bison helper
+// TODO Are those elements really definitions (name=) or are they references (=Symbol)
 SymbolWithPrecedence:
-	symbol=Symbol precedence=INT?
+//	symbol=Symbol precedence=INT?
+	name=ID precedence=INT?
+	| name=STRING precedence=INT?
+	| name=LITERAL precedence=INT?
 ;
 
 // TODO Bison helper
@@ -129,122 +276,6 @@ Value:
 	| code=BLOCK
 ;
 
-BisonDefinesDefinition:
-	{BisonDefinesDefinition}'%defines' defines=STRING?
-;
-
-BisonErrorVerboseDefinition:
-	{BisonErrorVerboseDefinition}'%error-verbose'
-;
-
-ExpectDefinition:
-	'%expect' number=INT
-;
-
-ExpectRrDefinition:
-	'%expect-rr' number=INT
-;
-
-BisonFilePrefixDefinition:
-	'%file-prefix' prefix=STRING
-;
-
-BisonGlrParserDefinition:
-	{BisonGlrParserDefinition}'%glr-parser'
-;
-
-BisonInitialActionDefinition:
-	'%initial-action' action=BLOCK
-;
-
-BisonLanguageDefinition:
-	'%language' language=STRING
-;
-
-BisonNamePrefixDefinition:
-	'%name-prefix' language=STRING
-;
-
-BisonNoDefaultPrecDefinition:
-	{BisonNoDefaultPrecDefinition} '%no-default-prec'
-;
-
-BisonNoLinesDefinition:
-	{BisonNoLinesDefinition} '%no-lines'
-;
-
-BisonNondeterministicParserDefinition:
-	{BisonNondeterministicParserDefinition} '%nondeterministic-parser'
-;
-
-BisonOutputDefinition:
-	'%output' output=STRING
-;
-
-BisonParamDefinition:
-	'%param' argumentDeclarations+=BLOCK+
-;
-
-BisonPrinterDefinition:
-	'%printer' code=BLOCK symbols+=GenericSymbol+
-;
-
-BisonRequireDefinition:
-	'%require' require=STRING
-;
-
-BisonSkeletonDefinition:
-	'%skeleton' skeleton=STRING
-;
-
-TokenTableDefinition:
-	{TokenTableDefinition} '%token-table'
-;
-
-BisonVerboseDefinition:
-	{BisonVerboseDefinition}'%verbose'
-;
-
-BisonYaccDefinition:
-	{BisonYaccDefinition}'%yacc'
-;
-
-DestructorDefinition:
-	'%destructor' code=BLOCK symbols+=GenericSymbol+
-;
-
-// TODO Where is this defined?
-IdentDefinition:
-	('%ident'
-	| '%IDENT')
-		ident=STRING
-;
-
-LocationsDefinition:
-	{LocationsDefinition} ('%locations'
-	| '%LOCATIONS') // TODO is this valid?
-;
-
-LexParamDefinition:
-	('%lex-param'
-	| '%lex_param' // TODO is this valid?
-	| '%LEX_PARAM') // TODO is this valid?
-		argumentDeclarations+=BLOCK+
-;
-
-ParseParamDefinition:
-	('%parse-param'
-	| '%parse_param' // TODO is this valid?
-	| '%PARSE_PARAM') // TODO is this valid?
-		argumentDeclarations+=BLOCK+
-;
-
-PureParserDefinition:
-	{PureParserDefinition} ('%pure-parser'
-	| '%pure_parser' // TODO is this valid?
-	| '%PURE_PARSER') // TODO is this valid?
-;
-
 CodeDefinition:
 	code=CODE
 ;
@@ -253,10 +284,11 @@ CodeDefinition:
 //	'%' ID
 //;
 enum RWord:
-	TOKEN='%token'
-	| LEFT='%left' | LEFT='%<'
+/*	TOKEN='%token'
+	|*/ LEFT='%left' | LEFT='%<'
 	| RIGHT='%right' | RIGHT='%>'
 	| NONASSOC='%nonassoc'
+	| PRECEDENCE='%precedence'
 //	| TYPE='%type'
 ;
 
@@ -266,9 +298,19 @@ Tag:
 	| '<' '>' // default tagless
 ;
 
-Nmno:
-	name=Identifier number=INT? string=STRING?
-//	| name=Tag
+SymbolDefinition:
+	name=Identifier number=INT?
+	| idName=IdName number=INT? string=StringAlias
+	| name=Tag
+;
+
+IdName:
+	name=Identifier
+;
+
+// TODO This is a workaround since two names are defined for the same symbol
+StringAlias:
+	 name=STRING
 ;
 
 RuleOrDefinition:
@@ -287,7 +329,7 @@ RuleBody:
 RuleBodyElement:
 	{RuleError}'error'
 	| {RuleEmpty}'%empty'
-	| {RuleReference}ref=ReferenceOrLiteral
+	| {RuleReference}ref=Symbol
 	| Action
 ;
 
@@ -296,20 +338,23 @@ Action:
 ;
 
 Precedence:
-	{Precedence} ('%prec' ref=ReferenceOrLiteral action=Action?) semi?=';'?
+	{Precedence} ('%prec' ref=Symbol action=Action?) semi?=';'?
 	| {Precedence} semi?=';'
 ;
 
 NamedElement:
 	Rule
-	| Nmno
+	| SymbolDefinition
+//	| StringAlias
+	| IdName
+	| SymbolWithPrecedence
 ;
 
-ReferenceOrLiteral:
-	ref=[NamedElement|ID]
-	| literal=LITERAL
-	| string=STRING
-;
+//ReferenceOrLiteral:
+//	ref=[NamedElement|ID]
+//	| literal=LITERAL
+//	| string=STRING
+//;
 
 Identifier:
 	ID | LITERAL
